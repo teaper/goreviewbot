@@ -1,0 +1,18 @@
+enabled: true
+bot:
+  #bot token
+  token:
+channels:
+  #测试群 chat_id: -1001102843992 (配置 token 启动 bot 后控制台会打印出来)
+  chat_id: -1001102843992
+  #测试群 chat_user_name: https://t.me/teapers
+  chat_user_name: teapers
+  #群类型（supergroup）(channel)
+  chat_type: supergroup
+  #群创建者
+  creator: teaper
+rss:
+  #RSS 订阅地址
+  client_url: https://nitter.net/golang/rss
+  #pubdate: RSS 最新消息的发布时间
+  pubdate: Mon, 12 Jul 2021 23:00:02 GMT
