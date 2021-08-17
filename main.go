@@ -192,7 +192,7 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 			otif,ot := msgc.OtMessage(update.Message.Text)
 			if otif == true {
 				//提示话题#OT
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "<em>#OT</em> <strong>话题</strong> ⇉ "+ot)
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "<em>#OT</em> <strong>知音</strong> ⇉ "+ot)
 				msg.ParseMode = tgbotapi.ModeHTML
 				msg.ReplyToMessageID = update.Message.MessageID
 				go t.botAPI.Send(msg)

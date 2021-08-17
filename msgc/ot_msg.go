@@ -5,7 +5,7 @@ import "strings"
 //# OT 话题判断
 func OtMessage(msg string) (bool,string) {
 	var ots = [...]string{"java","spring",
-		"rust","python","c++","php","notion","android","docker","k8s","kubernetes",
+		"rust","python","c++","c#","php","notion","android","docker","k8s","kubernetes",
 		"javascript","nodejs","node","vue",
 		"ssr","v2ray","xray","节点","vpn","科学上网","翻墙","quantumult",
 		"qv2ray","shadowsocks","小飞机","qv2rayng","passwall","shadowrocket","小火箭",
@@ -22,6 +22,8 @@ func OtMessage(msg string) (bool,string) {
 				return true,"@pythonzh"
 			case "c++":
 				return true,"@cpluspluszh"
+			case "c#":
+				return true,"@Csharp_zh"
 			case "php":
 				return true,"@php_group_cn"
 			case "notion":
