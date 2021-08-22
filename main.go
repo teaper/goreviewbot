@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"time"
+	"unicode/utf8"
 )
 
 //4：抽取出常用的两个对象
@@ -194,6 +195,17 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 				//提示话题#OT
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "<em>#OT</em> <strong>知音</strong> ⇉ "+ot)
 				msg.ParseMode = tgbotapi.ModeHTML
+				msg.ReplyToMessageID = update.Message.MessageID
+				t.botAPI.Send(msg)
+			}
+
+			//检查英文消息（超过 15 个字符是英文则翻译成中文）
+			if utf8.RuneCountInString(update.Message.Text) > 15 && msgc.IsChineseChar(update.Message.Text) == false &&
+			update.Message.From.IsBot == false {
+				//调用谷歌翻译
+				msgzh := msgc.TranEn(update.Message.Text)
+				//回复翻译结果
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "🔝 ⇉ 🇨🇳 \n"+msgzh)
 				msg.ReplyToMessageID = update.Message.MessageID
 				t.botAPI.Send(msg)
 			}

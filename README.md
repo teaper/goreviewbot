@@ -12,8 +12,9 @@
     - [x] Golang 开发进度推送  
     - [x] 消息置顶  
 - [ ] 操作命令  
-- [ ] 消息审查  
+- [x] 消息审查  
     - [x] OT 话题提醒  
+    - [x] 英文消息自动翻译
 #### 编译
 ```bash
 CGO_ENABLED=0 go build -o tgbot #编译成二进制文件 tgbot
