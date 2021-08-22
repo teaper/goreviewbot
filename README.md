@@ -21,7 +21,7 @@ CGO_ENABLED=0 go build -o tgbot #编译成二进制文件 tgbot
 ```
 #### 部署
 ```bash
-curl -LO https://github.com/teaper/GoReviewBot/releases/download/go-review-bot/tgbot #下载程序
+curl -LO https://github.com/teaper/goreviewbot/releases/download/v1.0.0/tgbot #下载程序
 ./tgbot #初次运行会自动生成一个 conf.yaml 模板
 vim conf.yaml #配置模板中的 token 
 nohup ./tgbot > tgbot.log 2>&1 & #借助 nohub 后台运行

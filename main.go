@@ -101,10 +101,11 @@ func (t *TeleBot) RestrictOrKickChatMember(ctk string,chatID int64,userID int,un
 func (t *TeleBot) SendRssNews()  {
 	var news = rss.GetRssPage(cfg.Rss.ClientURL,&cfg.Rss.Pubdate)
 	if news != "" {
-		log.Println("拿到的go news信息：",news)
+		log.Println("拿到的go news 消息：",news)
+		newszh := msgc.TranEn(news)
+		log.Println("翻译成中文后的 go news 消息",newszh)
 		//向 @golangzh 群发送消息
-		msg := tgbotapi.NewMessageToChannel("@"+cfg.Channels.ChatUserName,news)
-		msg.ParseMode = tgbotapi.ModeMarkdown
+		msg := tgbotapi.NewMessageToChannel("@"+cfg.Channels.ChatUserName,newszh)
 		send, _ := t.botAPI.Send(msg) //发送消息
 		//消息置顶
 		pinChatMessageConfig := tgbotapi.PinChatMessageConfig{
