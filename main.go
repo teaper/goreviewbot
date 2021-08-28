@@ -10,6 +10,7 @@ import (
 	"math/rand"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 	"unicode/utf8"
 )
@@ -190,19 +191,16 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 				}
 			}
 
-			//检查话题 OT
-			otif,ot := msgc.OtMessage(update.Message.Text)
-			if otif == true {
-				//提示话题#OT
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "<em>#OT</em> <strong>知音</strong> ⇉ "+ot)
-				msg.ParseMode = tgbotapi.ModeHTML
-				msg.ReplyToMessageID = update.Message.MessageID
-				t.botAPI.Send(msg)
+			//网络敏感词
+			if msgc.OtMessage(update.Message.Text) {
+				//删除消息
+				t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: update.Message.Chat.ID, MessageID: update.Message.MessageID})
 			}
 
 			//检查英文消息（超过 15 个字符是英文则翻译成中文）
 			if utf8.RuneCountInString(update.Message.Text) > 15 && msgc.IsChineseChar(update.Message.Text) == false &&
-			update.Message.From.IsBot == false {
+			update.Message.From.IsBot == false && strings.Contains(update.Message.Text, "http://") == false &&
+				strings.Contains(update.Message.Text, "https://") == false {
 				//调用谷歌翻译
 				msgzh := msgc.TranEn(update.Message.Text)
 				//回复翻译结果
