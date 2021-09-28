@@ -1,7 +1,7 @@
 ### Telegram 机器人
 [Golang 中文研习社](https://t.me/golangzh) 机器人 「 [阿茶](https://t.me/GoReviewBot) 」  
 #### 颜值
-![2021-08-09_13-19P.png](http://ww1.sinaimg.cn/large/006kWbIogy1gtagxo66p4j607g09ywgd02.jpg)  
+![](https://i.loli.net/2021/09/02/f8gjIGSHLdW1ebC.png)
 #### 功能  
 - [x] 入群验证  
     - [x] 数字验证码  
@@ -22,9 +22,10 @@ CGO_ENABLED=0 go build -o tgbot #编译成二进制文件 tgbot
 #### 部署
 ```bash
 curl -LO https://github.com/teaper/goreviewbot/releases/download/v1.0.0/tgbot #下载程序
+chmod +x tgbot
 ./tgbot #初次运行会自动生成一个 conf.yaml 模板
 vim conf.yaml #配置模板中的 token 
-nohup ./tgbot > tgbot.log 2>&1 & #借助 nohub 后台运行
+nohup ./tgbot > tgbot.log 2>&1 #借助 nohub 后台运行
 ps -aux | grep "tgbot" #查看运行状态
 cat tgbot.log #查看运行日志
 ```

@@ -8,7 +8,6 @@ import (
 	"goreviewbot/rss"
 	"log"
 	"math/rand"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -147,10 +146,14 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 						log.Printf("添加入群验证用户：%s ==> %d \n", "@"+user.UserName, user.ID)
 						//11:判断用户名长度和是否包含两位数字（一些广告账户）
 						//正则匹配用户名中带两位连续数字的帐号
-						reg, _ := regexp.Compile(`\D\d\d`)
-						photos, _ := t.botAPI.GetUserProfilePhotos(tgbotapi.NewUserProfilePhotos(user.ID))
+						//reg, _ := regexp.Compile(`\D\d\d`)
+						//photos, _ := t.botAPI.GetUserProfilePhotos(tgbotapi.NewUserProfilePhotos(user.ID))
 						//用户名中有两位数字，用户名为空，用户名长度超过 15 个字符，用户是机器人，用户头像图片数量为 0 ,一律拉黑踢出
-						if (len(user.UserName) >= 15) || (reg.FindString(user.UserName) != "") || (user.UserName == "") || (user.IsBot) || (photos.TotalCount == 0) {
+						//if (len(user.UserName) >= 15) || (reg.FindString(user.UserName) != "") || (user.UserName == "") || (user.IsBot) || (photos.TotalCount == 0) {
+						//	t.RestrictOrKickChatMember("kick",update.Message.Chat.ID,user.ID,time.Now().Unix()+1800) //踢出去 5 分钟
+						//	continue
+						//}
+						if user.IsBot {
 							t.RestrictOrKickChatMember("kick",update.Message.Chat.ID,user.ID,time.Now().Unix()+1800) //踢出去 5 分钟
 							continue
 						}

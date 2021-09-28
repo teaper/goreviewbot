@@ -3,6 +3,7 @@ package code
 import (
 	"embed"
 	"image"
+	"image/color"
 	"image/draw"
 	"image/gif"
 	"log"
@@ -47,6 +48,8 @@ func CreateVerificationCode(codes [4] int32) {
 	newWidth := (img1.Bounds().Max.X)*4 //新图片宽度
 	newHeight := img2.Bounds().Max.Y //新图片高度
 	newImg := image.NewNRGBA(image.Rect(0, 0, newWidth, newHeight)) //创建一个新RGBA图像
+	white := color.RGBA{255, 255, 255, 255}
+	draw.Draw(newImg, newImg.Bounds(), &image.Uniform{white}, image.ZP, draw.Src)
 	draw.Draw(newImg, newImg.Bounds(), img1, img1.Bounds().Min, draw.Over) //画上第一张缩放后的图片
 	draw.Draw(newImg, newImg.Bounds(), img2, img2.Bounds().Min.Sub(image.Pt(img1.Bounds().Max.X, 0)), draw.Over) //画上第二张缩放后的图片（注意X值的起始位置）
 	draw.Draw(newImg, newImg.Bounds(), img3, img3.Bounds().Min.Sub(image.Pt(img1.Bounds().Max.X, 0)).Sub(image.Pt(img2.Bounds().Max.X, 0)), draw.Over)
