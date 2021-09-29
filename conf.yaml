@@ -6,7 +6,7 @@ channels:
   #测试群 chat_id: -1001102843992 (配置 token 启动 bot 后控制台会打印出来)
   chat_id: -1001102843992
   #测试群 chat_user_name: https://t.me/teapers
-  chat_user_name: teapers
+  chat_user_name: hasayyo
   #群类型（supergroup）(channel)
   chat_type: supergroup
   #群创建者

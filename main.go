@@ -199,6 +199,11 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 				//删除消息
 				t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: update.Message.Chat.ID, MessageID: update.Message.MessageID})
 			}
+			//感叹句复读机
+			if msgc.RepMessage(update.Message.Text) {
+				msg := tgbotapi.NewMessageToChannel("@"+update.Message.Chat.UserName,update.Message.Text+update.Message.Text+update.Message.Text)
+				t.botAPI.Send(msg)
+			}
 
 			//检查英文消息（超过 15 个字符是英文则翻译成中文）
 			if utf8.RuneCountInString(update.Message.Text) > 15 && msgc.IsChineseChar(update.Message.Text) == false &&
@@ -350,7 +355,7 @@ func main() {
 	//2：传入 token 并抛出 err
 	bot, err := tgbotapi.NewBotAPI(cfg.GetConf().Bot.Token)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	bot.Debug = true
 	teleBot := TeleBot{
