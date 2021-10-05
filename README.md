@@ -15,6 +15,7 @@
 - [x] 消息审查  
     - [x] 网络敏感词  
     - [x] 英文消息自动翻译
+    - [x] 感叹号复读机
 #### 编译
 ```bash
 CGO_ENABLED=0 go build -o tgbot #编译成二进制文件 tgbot

@@ -60,39 +60,69 @@ func (t *TeleBot) IsAdministrator(chatID int64,userName string) (bool bool,statu
 // 发送警告 CallbackQuery
 func (t *TeleBot) EmptyAnswer(CallbackQueryID string,text string) {
 	configAlert := tgbotapi.NewCallback(CallbackQueryID, text)
-	t.botAPI.AnswerCallbackQuery(configAlert)
+	_, _ = t.botAPI.AnswerCallbackQuery(configAlert)
 }
 
 /*
-ctk: 选择限制权限(restrict)还是拉黑踢出(kick)解除权限(unban)
+ctk: 选择禁言(ban)  解除禁言(unban) 踢出并拉黑(kick) 仅踢出(unkick)
 chatID：群 id
 userID：群里被处理的人的 id
-untilDate：处理时间(永久封禁条件：> 366 day || < 30s)
+sec：处理时间(永久封禁条件： <= 0)
  */
-func (t *TeleBot) RestrictOrKickChatMember(ctk string,chatID int64,userID int,untilDate int64)  {
+func (t *TeleBot) RestrictOrKickChatMember(ctk string,chatID int64,userID int,sec int64)  {
+	if sec <= 0 {
+		sec = 9999999999999
+	}
 	switch ctk {
-	case "restrict":
-		t.botAPI.RestrictChatMember(
-			tgbotapi.RestrictChatMemberConfig{
-				ChatMemberConfig: tgbotapi.ChatMemberConfig{
+		case "ban":
+			b := false
+			_, _ = t.botAPI.RestrictChatMember(
+				tgbotapi.RestrictChatMemberConfig{
+					ChatMemberConfig: tgbotapi.ChatMemberConfig{
+						ChatID: chatID,
+						UserID: userID,
+					},
+					UntilDate: time.Now().Unix() + sec,
+					CanSendMessages:       &b,
+					CanSendMediaMessages:  &b,
+					CanSendOtherMessages:  &b,
+					CanAddWebPagePreviews: &b,
+				},
+			)
+		case "unban":
+			b := true
+			_, _ = t.botAPI.RestrictChatMember(
+				tgbotapi.RestrictChatMemberConfig{
+					ChatMemberConfig: tgbotapi.ChatMemberConfig{
+						ChatID: chatID,
+						UserID: userID,
+					},
+					UntilDate: 9999999999999,
+					CanSendMessages:       &b,
+					CanSendMediaMessages:  &b,
+					CanSendOtherMessages:  &b,
+					CanAddWebPagePreviews: &b,
+				},
+			)
+		case "kick":
+			_, _ = t.botAPI.KickChatMember(
+				tgbotapi.KickChatMemberConfig{
+					ChatMemberConfig: tgbotapi.ChatMemberConfig{
+						ChatID: chatID,
+						UserID: userID,
+					},
+					UntilDate: time.Now().Unix() + sec,
+				},
+			)
+		case "unkick":
+			_, _ = t.botAPI.UnbanChatMember(
+				tgbotapi.ChatMemberConfig{
 					ChatID: chatID,
 					UserID: userID,
 				},
-				UntilDate: untilDate,
-			},
-		)
-	case "kick":
-		t.botAPI.KickChatMember(
-			tgbotapi.KickChatMemberConfig{
-				ChatMemberConfig: tgbotapi.ChatMemberConfig{
-					ChatID: chatID,
-					UserID: userID,
-				},
-				UntilDate: untilDate,
-			},
-		)
-	default:
-		log.Println("ctk 请选择 restrict || kick")
+			)
+		default:
+			log.Println("ctk 请选择 banMember || kick")
 	}
 }
 
@@ -113,7 +143,7 @@ func (t *TeleBot) SendRssNews()  {
 			MessageID:           send.MessageID,
 			DisableNotification: true, //是否通知所有成员
 		}
-		t.botAPI.PinChatMessage(pinChatMessageConfig)
+		_, _ = t.botAPI.PinChatMessage(pinChatMessageConfig)
 	}
 }
 
@@ -148,17 +178,17 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 						//正则匹配用户名中带两位连续数字的帐号
 						//reg, _ := regexp.Compile(`\D\d\d`)
 						//photos, _ := t.botAPI.GetUserProfilePhotos(tgbotapi.NewUserProfilePhotos(user.ID))
-						//用户名中有两位数字，用户名为空，用户名长度超过 15 个字符，用户是机器人，用户头像图片数量为 0 ,一律拉黑踢出
+						//用户名中有两位数字，用户名为空，用户名长度超过 15 个字符，用户是机器人，用户头像图片数量为 0 ,一律踢出
 						//if (len(user.UserName) >= 15) || (reg.FindString(user.UserName) != "") || (user.UserName == "") || (user.IsBot) || (photos.TotalCount == 0) {
-						//	t.RestrictOrKickChatMember("kick",update.Message.Chat.ID,user.ID,time.Now().Unix()+1800) //踢出去 5 分钟
+						//	t.RestrictOrKickChatMember("unkick",update.Message.Chat.ID,user.ID,0) //仅踢出
 						//	continue
 						//}
 						if user.IsBot {
-							t.RestrictOrKickChatMember("kick",update.Message.Chat.ID,user.ID,time.Now().Unix()+1800) //踢出去 5 分钟
+							t.RestrictOrKickChatMember("kick",update.Message.Chat.ID,user.ID,-1) //踢出并拉黑
 							continue
 						}
 						//11：验证时先添加限制
-						t.RestrictOrKickChatMember("restrict",update.Message.Chat.ID,user.ID,time.Now().Unix()) //默认永久禁言
+						t.RestrictOrKickChatMember("ban",update.Message.Chat.ID,user.ID,-1) //默认永久禁言
 						codes := [4] int32{}
 						for {
 							//9：生成验证码（随机4位数）
@@ -197,12 +227,12 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 			//网络敏感词
 			if msgc.OtMessage(update.Message.Text) {
 				//删除消息
-				t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: update.Message.Chat.ID, MessageID: update.Message.MessageID})
+				_, _ = t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: update.Message.Chat.ID, MessageID: update.Message.MessageID})
 			}
 			//感叹句复读机
 			if msgc.RepMessage(update.Message.Text) {
 				msg := tgbotapi.NewMessageToChannel("@"+update.Message.Chat.UserName,update.Message.Text+update.Message.Text+update.Message.Text)
-				t.botAPI.Send(msg)
+				_, _ = t.botAPI.Send(msg)
 			}
 
 			//检查英文消息（超过 15 个字符是英文则翻译成中文）
@@ -214,7 +244,7 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 				//回复翻译结果
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "🔝 ⇉ 🇨🇳 \n"+msgzh)
 				msg.ReplyToMessageID = update.Message.MessageID
-				t.botAPI.Send(msg)
+				_, _ = t.botAPI.Send(msg)
 			}
 
 			//8：其他消息做 switch 匹配消息
@@ -267,9 +297,9 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 							//发送提示
 							t.EmptyAnswer(update.CallbackQuery.ID, "@"+CallformName+" 「验证成功 欢迎入群」 🎉🎉🎉")
 							//删除面板
-							t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: chatID, MessageID: CallMessageID})
-							//修改修改禁言时间为35秒(永久封禁：> 366 day || < 30s)，时间到了就能聊天了
-							t.RestrictOrKickChatMember("restrict",chatID,newUserID,time.Now().Unix() + 115)
+							_, _ = t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: chatID, MessageID: CallMessageID})
+							//解除禁言
+							t.RestrictOrKickChatMember("unban",chatID,newUserID,0)
 							//删除 map
 							delete(codeMsgsMap,CallMessageID)
 						}
@@ -280,10 +310,10 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 						//发送提示
 						t.EmptyAnswer(update.CallbackQuery.ID, "@"+CallformName+" 「验证失败 10分钟后再试」 💔💔💔")
 						//删除面板
-						t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: chatID, MessageID: CallMessageID})
-						//踢出并拉黑成员
+						_, _ = t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: chatID, MessageID: CallMessageID})
+						//仅踢出成员
 						log.Printf("踢出成员：UserID ==> %d \n",newUserID)
-						t.RestrictOrKickChatMember("kick",chatID,newUserID,time.Now().Unix()+1800) //10分钟后再试
+						t.RestrictOrKickChatMember("unkick",chatID,newUserID,0)
 						//删除 map
 						delete(codeMsgsMap,CallMessageID)
 					}
@@ -301,10 +331,9 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 				log.Printf("人工通过 callNum 重置为 ==> %d \n",callNum)
 				//删除面板
 				log.Printf("codeMsgsID => %d ,messageId => %d ,codeMsgsMap[messageId] => %v \n",codeMsgsID,CallMessageID,codeMsgsMap[CallMessageID])
-				t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: chatID, MessageID: CallMessageID})
-				//修改权限
-				//go t.RestrictOrKickChatMember("restrict",chatID,newUserID,time.Now().Unix()+115)
-				t.RestrictOrKickChatMember("restrict",chatID,newUserID,time.Now().Unix()+115)
+				_, _ = t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: chatID, MessageID: CallMessageID})
+				//解除禁言
+				t.RestrictOrKickChatMember("unban",chatID,newUserID,0)
 				//删除 map
 				delete(codeMsgsMap,CallMessageID)
 			case "人工拒绝":
@@ -319,10 +348,10 @@ func (t *TeleBot) sendAnswerCallbackQuery() {
 				log.Printf("人工拒绝 callNum 重置为 %d \n",callNum)
 				//删除面板
 				log.Printf("codeMsgsID => %d ,messageId => %d ,codeMsgsMap[messageId] => %v \n",codeMsgsID,CallMessageID,codeMsgsMap[CallMessageID])
-				t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: chatID, MessageID: CallMessageID})
-				//踢出并拉黑（1800 >= 5分钟，官方时间不准）成员
+				_, _ = t.botAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{ChatID: chatID, MessageID: CallMessageID})
+				//踢出并拉黑
 				log.Printf("踢出成员：UserID ==> %d \n",newUserID)
-				t.RestrictOrKickChatMember("kick",chatID,newUserID,time.Now().Unix()+1800)
+				t.RestrictOrKickChatMember("kick",chatID,newUserID,-1)
 				//删除map
 				delete(codeMsgsMap,CallMessageID)
 			}
