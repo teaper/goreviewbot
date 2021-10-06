@@ -122,7 +122,7 @@ func (t *TeleBot) RestrictOrKickChatMember(ctk string,chatID int64,userID int,se
 				},
 			)
 		default:
-			log.Println("ctk 请选择 banMember || kick")
+			log.Println("ctk 请选择 ban/unban || kick/unkick")
 	}
 }
 

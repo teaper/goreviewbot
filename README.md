@@ -18,16 +18,17 @@
     - [x] 感叹号复读机
 #### 编译
 ```bash
-CGO_ENABLED=0 go build -o tgbot #编译成二进制文件 tgbot
+make all-amd64 #编译适用于各个平台的版本在 bin 目录中
+make clear  #清楚 bin 目录中编译后的文件
 ```
 #### 部署
 ```bash
-curl -LO https://github.com/teaper/goreviewbot/releases/download/v1.0.0/tgbot #下载程序
-chmod +x tgbot
-./tgbot #初次运行会自动生成一个 conf.yaml 模板
+curl -LO https://github.com/teaper/goreviewbot/releases/download/v1.0.0/tgbot-linux-amd64 #下载程序
+chmod +x tgbot-linux-amd64
+./tgbot-linux-amd64 #初次运行会自动生成一个 conf.yaml 模板
 vim conf.yaml #配置模板中的 token 
-nohup ./tgbot > tgbot.log 2>&1 #借助 nohub 后台运行
-ps -aux | grep "tgbot" #查看运行状态
+nohup ./tgbot-linux-amd64 > tgbot.log 2>&1 #借助 nohub 后台运行
+ps -aux | grep "tgbot-linux-amd64" #查看运行状态
 cat tgbot.log #查看运行日志
 ```
 #### 说明  
