@@ -29,5 +29,5 @@ all-amd64:
 	GOARCH=amd64 GOOS=darwin $(GOBUILD) -o $(BINDIR)/$(NAME)-darwin-amd64
 	GOARCH=amd64 GOOS=freebsd $(GOBUILD) -o $(BINDIR)/$(NAME)-freebsd-amd64
 
-clear:
+clean:
 	rm $(BINDIR)/*
